@@ -52,7 +52,7 @@ async def greeting(message: types.Message, state: FSMContext):
 @dp.message_handler(commands=['export_bonus'])
 async def export_command(message: types.Message):
     # Проверяем, является ли пользователь, который вызывает команду, администратором
-    if message.from_user.id != 5837917794:
+    if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_bonus
         await message.reply('У вас нет доступа к этой команде.')
         return
     # Получаем данные всех пользователей из базы данных
@@ -86,7 +86,7 @@ async def export_command(message: types.Message):
 @dp.message_handler(commands=['export_user'])
 async def export_command(message: types.Message):
     # Проверяем, является ли пользователь, который вызывает команду, администратором
-    if message.from_user.id != 5837917794:
+    if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_user
         await message.reply('У вас нет доступа к этой команде.')
         return
     # Получаем данные всех пользователей из базы данных
@@ -212,12 +212,12 @@ async def write_phone(message: types.Message, state: FSMContext):
     conn.commit()
     await state.finish()
     bonus = (f"🎉 Ура! А вот и твоя награда: {random_bonus}\n\n"
-             
+
              f"Предъяви эту запись нашему администратору и забирай свой приз 🏆\n\n"
-             
+
              f"⚠️ ВНИМАНИЕ! Новый бонус можно получить ровно через сутки.\n"
              f"📢 Подписывайся на наш <a href='https://t.me/instinkt_project_nn'>Telegram канал!</a>\n\n"
-             
+
              f"Для возврата в начало нажми /start.")
     await message.answer(bonus, disable_web_page_preview=True)
 
