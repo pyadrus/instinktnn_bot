@@ -12,7 +12,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from keyboards.bonus_keyboards import bonus_keyboards, top_kub_keyboards, bottom_kub_keyboards
 from keyboards.greeting_keyboards import greeting_keyboards  # Клавиатуры поста приветствия
-from messages.bonus_text import random_bon
+from messages.bonus_text import random_bon, bonus_post
 from messages.greeting_post import greeting_post  # Пояснение для пользователя FAG
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
@@ -119,19 +119,14 @@ async def export_command(message: types.Message):
 @dp.callback_query_handler(lambda c: c.data == "get_a_bonus")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     bonus_keyboard = bonus_keyboards()
-    bonus_post = 'Выберете филиал'
-    await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=bonus_keyboard,
+    bonus_posts = 'Выберете филиал:'
+    await bot.send_message(callback_query.from_user.id, bonus_posts, reply_markup=bonus_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
 
 @dp.callback_query_handler(lambda c: c.data == "top_pard")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     top_kub_keyboard = top_kub_keyboards()
-    bonus_post = ('🎁 Давай поиграем?\n\n'
-                  'Уверены, у тебя есть все шансы на победу! Крути/кидай и получай подарки каждый день. Скидки до 50% '
-                  'на программы, горячие дополнения, бар и караоке.\n\n'
-                  'Чтобы выиграть, жми 🎲 внизу экрана.\n\n'
-                  'Для возврата в начало нажми /start.')
     await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=top_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
@@ -139,11 +134,6 @@ async def get_a_bonus(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda c: c.data == "bottom_part")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     bottom_kub_keyboard = bottom_kub_keyboards()
-    bonus_post = ('🎁 Давай поиграем?\n\n'
-                  'Уверены, у тебя есть все шансы на победу! Крути/кидай и получай подарки каждый день. Скидки до 50% '
-                  'на программы, горячие дополнения, бар и караоке.\n\n'
-                  'Чтобы выиграть, жми 🎲 внизу экрана.\n\n'
-                  'Для возврата в начало нажми /start.')
     await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=bottom_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
