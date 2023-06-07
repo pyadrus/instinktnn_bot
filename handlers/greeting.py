@@ -212,8 +212,12 @@ async def write_phone(message: types.Message, state: FSMContext):
     conn.commit()
     await state.finish()
     bonus = (f"🎉 Ура! А вот и твоя награда: {random_bonus}\n\n"
+             
+             f"Предъяви эту запись нашему администратору и забирай свой приз 🏆\n\n"
+             
              f"⚠️ ВНИМАНИЕ! Новый бонус можно получить ровно через сутки.\n"
              f"📢 Подписывайся на наш <a href='https://t.me/instinkt_project_nn'>Telegram канал!</a>\n\n"
+             
              f"Для возврата в начало нажми /start.")
     await message.answer(bonus, disable_web_page_preview=True)
 
