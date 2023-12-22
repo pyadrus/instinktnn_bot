@@ -10,12 +10,14 @@ from aiogram.dispatcher import FSMContext  # Состояния пользова
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from keyboards.bonus_keyboards import bonus_keyboards, top_kub_keyboards, bottom_kub_keyboards
+
 from keyboards.greeting_keyboards import greeting_keyboards  # Клавиатуры поста приветствия
 from messages.bonus_text import random_bon, bonus_post
 from messages.greeting_post import greeting_post  # Пояснение для пользователя FAG
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
+from loguru import logger
 
-
+logger.add('log/log.log', rotation='2 MB')
 
 
 @dp.message_handler(commands=['start'])
@@ -25,12 +27,16 @@ async def greeting(message: types.Message, state: FSMContext):
     await state.reset_state()
     # Получаем текущую дату и время
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Подключение к базе данных SQLite
+    conn = sqlite3.connect('orders.db')
+    cursor = conn.cursor()
     # Записываем данные пользователя в базу данных
     cursor.execute('''INSERT INTO users (user_id, first_name, last_name, username, date) VALUES (?, ?, ?, ?, ?)''', (
         message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username,
         current_date))
     conn.commit()
-    print(f'Привет! нажали на кнопку /start {message.from_user.id, message.from_user.username, current_date}')
+    logger.info(f'Привет! нажали на кнопку /start {message.from_user.id, message.from_user.username, current_date}')
+    # print(f'Привет! нажали на кнопку /start {message.from_user.id, message.from_user.username, current_date}')
     keyboards_greeting = greeting_keyboards()
     # Клавиатура для Калькулятора цен или Контактов
     await message.reply(greeting_post, reply_markup=keyboards_greeting, disable_web_page_preview=True,
@@ -44,6 +50,9 @@ async def export_command(message: types.Message):
     if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_bonus
         await message.reply('У вас нет доступа к этой команде.')
         return
+    # Подключение к базе данных SQLite
+    conn = sqlite3.connect('orders.db')
+    cursor = conn.cursor()
     # Получаем данные всех пользователей из базы данных
     cursor.execute('SELECT * FROM users_bonus')
     data = cursor.fetchall()
@@ -78,6 +87,9 @@ async def export_command(message: types.Message):
     if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_user
         await message.reply('У вас нет доступа к этой команде.')
         return
+    # Подключение к базе данных SQLite
+    conn = sqlite3.connect('orders.db')
+    cursor = conn.cursor()
     # Получаем данные всех пользователей из базы данных
     cursor.execute('SELECT * FROM users')
     data = cursor.fetchall()

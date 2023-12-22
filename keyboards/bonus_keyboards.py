@@ -12,7 +12,7 @@ def bonus_keyboards():
 
 
 def top_kub_keyboards():
-    """Клавиатура для выбора города"""
+    """Клавиатура 🎲"""
     top_kub_keyboards = InlineKeyboardMarkup()
     top_kub = InlineKeyboardButton(text='🎲', callback_data='top_kub')
     top_kub_keyboards.row(top_kub)
@@ -20,7 +20,7 @@ def top_kub_keyboards():
 
 
 def bottom_kub_keyboards():
-    """Клавиатура для выбора города"""
+    """Клавиатура 🎲"""
     bottom_kub_keyboards = InlineKeyboardMarkup()
     bottom_kub = InlineKeyboardButton(text='🎲', callback_data='bottom_kub')
     bottom_kub_keyboards.row(bottom_kub)
