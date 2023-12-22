@@ -1,7 +1,6 @@
-# Импортируем модуль для работы с базой данных SQLite
 import datetime  # Дата
 import random
-import sqlite3
+import sqlite3 # Импортируем модуль для работы с базой данных SQLite
 import time
 from datetime import date
 import openpyxl
