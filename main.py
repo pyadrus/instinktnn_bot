@@ -1,6 +1,6 @@
 from aiogram import executor
 
-from handlers.faq import faq_handlers
+from handlers.user_handlers.faq import faq_handlers
 from handlers.greeting import greeting_handler
 from system.dispatcher import dp
 
