@@ -1,4 +1,5 @@
 import datetime  # Дата
+import datetime  # Дата
 import random
 import sqlite3  # Импортируем модуль для работы с базой данных SQLite
 import time
@@ -11,37 +12,34 @@ from loguru import logger
 
 from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
-from keyboards.bonus_keyboards import bonus_keyboards, top_kub_keyboards, bottom_kub_keyboards
-from keyboards.greeting_keyboards import city_selection_keyboard  # Клавиатуры поста приветствия
+from keyboards.bonus_keyboards import top_kub_keyboards, bottom_kub_keyboards
+from keyboards.greeting_keyboards import moscow_greeting_keyboards  # Клавиатуры поста приветствия
 from messages.bonus_text import random_bon, bonus_post
+from messages.greeting_post import greeting_post_moscow
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
-logger.add('log/log.log', rotation='2 MB')
+
+@dp.callback_query_handler(lambda c: c.data == "moscow_button")
+async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
+    try:
+        await state.finish()
+        await state.reset_state()
+
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
+        logger.info(
+            f'Нажали на кнопку "Москва" {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        recording_the_data_of_users_who_launched_the_bot(callback_query.message, current_date)
+        logger.info(
+            f'Привет! нажали на кнопку /start {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        keyboards_greeting = moscow_greeting_keyboards()
+        await bot.send_message(callback_query.from_user.id, text=greeting_post_moscow, reply_markup=keyboards_greeting,
+                               disable_web_page_preview=True,
+                               parse_mode=types.ParseMode.HTML)
+    except Exception as e:
+        logger.error(f'Произошла ошибка: {e}')
 
 
-@dp.message_handler(commands=['start'])
-async def greeting(message: types.Message, state: FSMContext):
-    """Обработчик команды /start, он же пост приветствия"""
-    await state.finish()
-    await state.reset_state()
-    current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
-    recording_the_data_of_users_who_launched_the_bot(message, current_date)
-    logger.info(f'Привет! нажали на кнопку /start {message.from_user.id, message.from_user.username, current_date}')
-    city_selection_key = city_selection_keyboard()
-    await message.answer('Привет! 👋\n\n 🌟 Я чат-бот сети салонов <i>Инстинкт</i>\n\n 🌟 Лучший релакс в твоем '
-                         'городе\n\n Выберите город', reply_markup=city_selection_key, disable_web_page_preview=True,
-                         parse_mode=types.ParseMode.HTML)
-
-
-@dp.callback_query_handler(lambda c: c.data == "get_a_bonus")
-async def get_a_bonus(callback_query: types.CallbackQuery):
-    bonus_keyboard = bonus_keyboards()
-    bonus_posts = 'Выберете филиал:'
-    await bot.send_message(callback_query.from_user.id, bonus_posts, reply_markup=bonus_keyboard,
-                           parse_mode=types.ParseMode.HTML)
-
-
-@dp.callback_query_handler(lambda c: c.data == "top_pard")
+@dp.callback_query_handler(lambda c: c.data == "moscow_get_a_bonus")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     top_kub_keyboard = top_kub_keyboards()
     await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=top_kub_keyboard,
@@ -143,6 +141,6 @@ async def write_phone(message: types.Message, state: FSMContext):
     await message.answer(bonus, disable_web_page_preview=True)
 
 
-def greeting_handler():
-    """Регистрируем handlers для калькулятора"""
-    dp.register_message_handler(greeting)  # Обработчик команды /start, он же пост приветствия
+def register_moscow_handler():
+    """Регистрируем handlers для Москвы"""
+    dp.register_callback_query_handler(moscow_button_handler)

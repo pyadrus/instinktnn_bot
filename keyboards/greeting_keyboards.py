@@ -11,6 +11,16 @@ def greeting_keyboards():
     return keyboards_greeting
 
 
+def moscow_greeting_keyboards():
+    """Клавиатуры поста приветствия 🎲"""
+    keyboards_greeting = InlineKeyboardMarkup()
+    get_a_bonus = InlineKeyboardButton(text='Получить бонус', callback_data='moscow_get_a_bonus')
+    reference_keyboard = InlineKeyboardButton(text='📇 О нас', callback_data='moscow_reference')  # Контакты
+    keyboards_greeting.row(reference_keyboard, get_a_bonus)
+
+    return keyboards_greeting
+
+
 def city_selection_keyboard():
     """Клавиатура выбора города"""
     city_selection_key = InlineKeyboardMarkup()
