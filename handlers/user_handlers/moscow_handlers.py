@@ -1,5 +1,4 @@
 import datetime  # Дата
-import datetime  # Дата
 import random
 import sqlite3  # Импортируем модуль для работы с базой данных SQLite
 import time

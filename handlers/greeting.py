@@ -12,8 +12,9 @@ from loguru import logger
 from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
 from keyboards.bonus_keyboards import bonus_keyboards, top_kub_keyboards, bottom_kub_keyboards
-from keyboards.greeting_keyboards import city_selection_keyboard  # Клавиатуры поста приветствия
+from keyboards.greeting_keyboards import city_selection_keyboard, greeting_keyboards  # Клавиатуры поста приветствия
 from messages.bonus_text import random_bon, bonus_post
+from messages.greeting_post import greeting_post_nizhniy_novgorod
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
 logger.add('log/log.log', rotation='2 MB')
@@ -31,6 +32,27 @@ async def greeting(message: types.Message, state: FSMContext):
     await message.answer('Привет! 👋\n\n 🌟 Я чат-бот сети салонов <i>Инстинкт</i>\n\n 🌟 Лучший релакс в твоем '
                          'городе\n\n Выберите город', reply_markup=city_selection_key, disable_web_page_preview=True,
                          parse_mode=types.ParseMode.HTML)
+
+
+@dp.callback_query_handler(lambda c: c.data == "nizhniy_novgorod_button")
+async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
+    try:
+        await state.finish()
+        await state.reset_state()
+
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
+        logger.info(
+            f'Нажали на кнопку "Нижний Новгород" {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        recording_the_data_of_users_who_launched_the_bot(callback_query.message, current_date)
+        logger.info(
+            f'Привет! нажали на кнопку /start {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        keyboards_greeting = greeting_keyboards()
+        await bot.send_message(callback_query.from_user.id, text=greeting_post_nizhniy_novgorod,
+                               reply_markup=keyboards_greeting,
+                               disable_web_page_preview=True,
+                               parse_mode=types.ParseMode.HTML)
+    except Exception as e:
+        logger.error(f'Произошла ошибка: {e}')
 
 
 @dp.callback_query_handler(lambda c: c.data == "get_a_bonus")
