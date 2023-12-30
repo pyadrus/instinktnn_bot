@@ -13,7 +13,7 @@ from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
 from keyboards.bonus_keyboards import bonus_keyboards, top_kub_keyboards, bottom_kub_keyboards
 from keyboards.greeting_keyboards import city_selection_keyboard, greeting_keyboards  # Клавиатуры поста приветствия
-from messages.bonus_text import random_bon, bonus_post
+from messages.bonus_text import random_bon, moscow_bonus_post
 from messages.greeting_post import greeting_post_nizhniy_novgorod
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
@@ -66,14 +66,14 @@ async def get_a_bonus(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda c: c.data == "top_pard")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     top_kub_keyboard = top_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=top_kub_keyboard,
+    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=top_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
 
 @dp.callback_query_handler(lambda c: c.data == "bottom_part")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     bottom_kub_keyboard = bottom_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=bottom_kub_keyboard,
+    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=bottom_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
 

@@ -13,7 +13,7 @@ from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
 from keyboards.bonus_keyboards import top_kub_keyboards, bottom_kub_keyboards
 from keyboards.greeting_keyboards import moscow_greeting_keyboards  # Клавиатуры поста приветствия
-from messages.bonus_text import random_bon, bonus_post
+from messages.bonus_text import random_bon, moscow_bonus_post
 from messages.greeting_post import greeting_post_moscow
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
@@ -23,13 +23,11 @@ async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMC
     try:
         await state.finish()
         await state.reset_state()
-
+        username = callback_query.from_user.username  # Username пользователя бота Telegram
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
-        logger.info(
-            f'Нажали на кнопку "Москва" {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        logger.info(f'Нажали на кнопку "Москва" {callback_query.from_user.id, username, current_date}')
         recording_the_data_of_users_who_launched_the_bot(callback_query.message, current_date)
-        logger.info(
-            f'Привет! нажали на кнопку /start {callback_query.from_user.id, callback_query.from_user.username, current_date}')
+        logger.info(f'Привет! нажали на кнопку /start {callback_query.from_user.id, username, current_date}')
         keyboards_greeting = moscow_greeting_keyboards()
         await bot.send_message(callback_query.from_user.id, text=greeting_post_moscow, reply_markup=keyboards_greeting,
                                disable_web_page_preview=True,
@@ -41,14 +39,14 @@ async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMC
 @dp.callback_query_handler(lambda c: c.data == "moscow_get_a_bonus")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     top_kub_keyboard = top_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=top_kub_keyboard,
+    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=top_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
 
 @dp.callback_query_handler(lambda c: c.data == "bottom_part")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     bottom_kub_keyboard = bottom_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, bonus_post, reply_markup=bottom_kub_keyboard,
+    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=bottom_kub_keyboard,
                            parse_mode=types.ParseMode.HTML)
 
 
