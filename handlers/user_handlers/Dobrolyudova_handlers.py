@@ -11,51 +11,37 @@ from loguru import logger
 
 from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
-from keyboards.bonus_keyboards import top_kub_keyboards, bottom_kub_keyboards
-from keyboards.greeting_keyboards import moscow_greeting_keyboards  # Клавиатуры поста приветствия
-from messages.bonus_text import random_bon, moscow_bonus_post
-from messages.greeting_post import greeting_post_moscow
+from keyboards.bonus_keyboards import dobrolyudova_keyboards
+from messages.bonus_text import random_dob
+from messages.greeting_post import greeting_post_nizhniy_novgorod
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
 
 
-@dp.callback_query_handler(lambda c: c.data == "moscow_button")
-async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
+class MakingAnOrderDobrolyudova(StatesGroup):
+    """Создание класса состояний"""
+    write_phone_dobrolyudova = State()
+
+
+@dp.callback_query_handler(lambda c: c.data == "dobrolyudova")
+async def dobrolyudova_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
     try:
         await state.finish()
         await state.reset_state()
         username = callback_query.from_user.username  # Username пользователя бота Telegram
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
-        logger.info(f'Нажали на кнопку "Москва" {callback_query.from_user.id, username, current_date}')
+        logger.info(f'Нажали на кнопку "Добролюбова" {callback_query.from_user.id, username, current_date}')
         recording_the_data_of_users_who_launched_the_bot(callback_query.message, current_date)
         logger.info(f'Привет! нажали на кнопку /start {callback_query.from_user.id, username, current_date}')
-        keyboards_greeting = moscow_greeting_keyboards()
-        await bot.send_message(callback_query.from_user.id, text=greeting_post_moscow, reply_markup=keyboards_greeting,
+        keyboards_greeting = dobrolyudova_keyboards()
+        await bot.send_message(callback_query.from_user.id, text=greeting_post_nizhniy_novgorod,
+                               reply_markup=keyboards_greeting,
                                disable_web_page_preview=True,
                                parse_mode=types.ParseMode.HTML)
     except Exception as e:
         logger.error(f'Произошла ошибка: {e}')
 
 
-@dp.callback_query_handler(lambda c: c.data == "moscow_get_a_bonus")
-async def get_a_bonus(callback_query: types.CallbackQuery):
-    top_kub_keyboard = top_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=top_kub_keyboard,
-                           parse_mode=types.ParseMode.HTML)
-
-
-@dp.callback_query_handler(lambda c: c.data == "bottom_part")
-async def get_a_bonus(callback_query: types.CallbackQuery):
-    bottom_kub_keyboard = bottom_kub_keyboards()
-    await bot.send_message(callback_query.from_user.id, moscow_bonus_post, reply_markup=bottom_kub_keyboard,
-                           parse_mode=types.ParseMode.HTML)
-
-
-class MakingAnOrder(StatesGroup):
-    """Создание класса состояний"""
-    write_phone = State()
-
-
-@dp.callback_query_handler(lambda c: c.data == "top_kub")
+@dp.callback_query_handler(lambda c: c.data == "dobrolyudova_kub")
 async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_dice(callback_query.from_user.id, emoji='🎲')  # Отправляем эмодзи '🎲'
     time.sleep(5)
@@ -74,34 +60,11 @@ async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
         return
     text = "✅ Введите ваше имя."
     await bot.send_message(callback_query.from_user.id, text)
-    await MakingAnOrder.write_phone.set()
+    await MakingAnOrderDobrolyudova.write_phone_dobrolyudova.set()
     await state.update_data(user_id=user_id, today=today, plase=plase)
 
 
-@dp.callback_query_handler(lambda c: c.data == "bottom_kub")
-async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
-    await bot.send_dice(callback_query.from_user.id, emoji='🎲')  # Отправляем эмодзи '🎲'
-    time.sleep(5)
-    user_id = callback_query.from_user.id
-    today = date.today().strftime('%Y-%m-%d')
-    plase = "проспект Ильича, д.25"
-    # Проверка, был ли использован бонус сегодня
-    user_key = f"{user_id}_{today}"  # Создание уникального ключа
-
-    existing_user = retrieve_user_bonus(user_key)
-
-    if existing_user:
-        text_error_bonus = "Вы уже использовали бонус сегодня."
-        await bot.answer_callback_query(callback_query.id, text_error_bonus)
-        await state.finish()
-        return
-    text = "✅ Введите ваше имя."
-    await bot.send_message(callback_query.from_user.id, text)
-    await MakingAnOrder.write_phone.set()
-    await state.update_data(user_id=user_id, today=today, plase=plase)
-
-
-@dp.message_handler(state=MakingAnOrder.write_phone)
+@dp.message_handler(state=MakingAnOrderDobrolyudova.write_phone_dobrolyudova)
 async def write_phone(message: types.Message, state: FSMContext):
     """Обработчик ввода номера телефона"""
     data = await state.get_data()
@@ -109,7 +72,7 @@ async def write_phone(message: types.Message, state: FSMContext):
     plase = data.get('plase')
     today = data.get('today')
     phone = message.text
-    random_bonus = random.choice(random_bon)
+    random_bonus = random.choice(random_dob)
     user_key = f"{user_id}_{today}"  # Создание уникального ключа
     # Проверяем, существует ли запись с таким же id и user_key в таблице users_bonus
     conn = sqlite3.connect('orders.db')
@@ -138,6 +101,6 @@ async def write_phone(message: types.Message, state: FSMContext):
     await message.answer(bonus, disable_web_page_preview=True)
 
 
-def register_moscow_handler():
-    """Регистрируем handlers для Москвы"""
-    dp.register_callback_query_handler(moscow_button_handler)
+def register_dobrolyudova_handler():
+    """Регистрируем handlers для Dobrolyudova"""
+    dp.register_callback_query_handler(dobrolyudova_button_handler)
