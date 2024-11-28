@@ -1,4 +1,4 @@
-# InstinktBot: README
+# InstinktBot
 
 ## 📋 Описание проекта
 
