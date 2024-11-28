@@ -36,7 +36,7 @@ async def dobrolyudova_button_handler(callback_query: types.CallbackQuery, state
         await bot.send_message(callback_query.from_user.id, text=greeting_post_nizhniy_novgorod,
                                reply_markup=keyboards_greeting,
                                disable_web_page_preview=True,
-                               parse_mode=types.ParseMode.HTML)
+                               parse_mode="HTML")
     except Exception as e:
         logger.error(f'Произошла ошибка: {e}')
 
@@ -56,11 +56,12 @@ async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     if existing_user:
         text_error_bonus = "Вы уже использовали бонус сегодня."
         await bot.answer_callback_query(callback_query.id, text_error_bonus)
-        await state.finish()
+        await state.clear()
+
         return
     text = "✅ Введите ваше имя."
     await bot.send_message(callback_query.from_user.id, text)
-    await MakingAnOrderDobrolyudova.write_phone_dobrolyudova.set()
+    await state.set_state(MakingAnOrderDobrolyudova.write_phone_dobrolyudova)
     await state.update_data(user_id=user_id, today=today, plase=plase)
 
 
@@ -82,14 +83,16 @@ async def write_phone(message: types.Message, state: FSMContext):
     if existing_user:
         text_error_bonus = "Вы уже использовали бонус сегодня."
         await bot.send_message(message.from_user.id, text_error_bonus)
-        await state.finish()
+        await state.clear()
+
         return
     cursor.execute(
         "INSERT INTO users_bonus (user_key, id, full_name, user_name, bonus, plase) VALUES (?, ?, ?, ?, ?, ?)",
         (user_key, user_id, message.from_user.full_name, phone, random_bonus, plase))
 
     conn.commit()
-    await state.finish()
+    await state.clear()
+
     bonus = (f"🎉 Ура! А вот и твоя награда: {random_bonus}\n\n"
 
              f"Предъяви эту запись нашему администратору и забирай свой приз 🏆\n\n"

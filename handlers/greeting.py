@@ -48,6 +48,7 @@ async def moscow_button_handler(callback_query: types.CallbackQuery, state: FSMC
     except Exception as e:
         logger.error(f'Произошла ошибка: {e}')
 
+
 @router.callback_query(F.data == "get_a_bonus")
 async def get_a_bonus(callback_query: types.CallbackQuery):
     bonus_keyboard = bonus_keyboards()
