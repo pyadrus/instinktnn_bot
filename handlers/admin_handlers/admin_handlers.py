@@ -4,7 +4,7 @@ import openpyxl
 from aiogram import types  # Типы пользователя
 from aiogram.filters import Command
 from openpyxl.utils import get_column_letter
-
+from aiogram.types import FSInputFile
 from database.database import get_export_bonus_from_database
 from database.database import get_export_user_bonus_from_database
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
@@ -16,7 +16,8 @@ async def export_command(message: types.Message):
     """Обработчик команды /export_bonus"""
 
     # Проверяем, является ли пользователь, который вызывает команду, администратором
-    if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_bonus
+    if message.from_user.id not in [5837917794, 5958542955,
+                                    535185511]:  # Предоставление доступа к команде  /export_bonus
         await message.reply('У вас нет доступа к этой команде.', parse_mode='HTML')
         return
 
@@ -36,9 +37,11 @@ async def export_command(message: types.Message):
             sheet[f'{col_letter}{row_num}'] = cell_data
 
     wb.save('users_bonus.xlsx')  # Сохраняем файл Excel
-    # Отправляем файл пользователю
-    with open('users_bonus.xlsx', 'rb') as file:
-        await bot.send_document(message.from_user.id, file, caption='Данные пользователей в формате Excel')
+
+    file = FSInputFile(f'users_bonus.xlsx')  # Отправляем файл пользователю
+
+    await bot.send_document(message.from_user.id, document=file, caption='Данные пользователей в формате Excel',
+                            parse_mode="HTML")  # Отправка файла пользователю
 
     os.remove('users_bonus.xlsx')  # Удаляем файл Excel
 
@@ -47,7 +50,8 @@ async def export_command(message: types.Message):
 async def export_command(message: types.Message):
     """Обработчик команды /export_user"""
     # Проверяем, является ли пользователь, который вызывает команду, администратором
-    if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_user
+    if message.from_user.id not in [5837917794, 5958542955,
+                                    535185511]:  # Предоставление доступа к команде  /export_user
         await message.reply('У вас нет доступа к этой команде.')
         return
 
@@ -67,9 +71,10 @@ async def export_command(message: types.Message):
             sheet[f'{col_letter}{row_num}'] = cell_data
 
     wb.save('users.xlsx')  # Сохраняем файл Excel
-    # Отправляем файл пользователю
-    with open('users.xlsx', 'rb') as file:
-        await bot.send_document(message.from_user.id, file, caption='Данные пользователей в формате Excel')
+
+    file = FSInputFile(f'users.xlsx')  # Отправляем файл пользователю
+    await bot.send_document(message.from_user.id, document=file, caption='Данные пользователей в формате Excel',
+                            parse_mode="HTML")  # Отправка файла пользователю
 
     os.remove('users.xlsx')  # Удаляем файл Excel
 
