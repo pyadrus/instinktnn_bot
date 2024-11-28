@@ -2,19 +2,22 @@ import os
 
 import openpyxl
 from aiogram import types  # Типы пользователя
+from aiogram.filters import Command
 from openpyxl.utils import get_column_letter
 
 from database.database import get_export_bonus_from_database
 from database.database import get_export_user_bonus_from_database
 from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
+from system.dispatcher import router
 
 
-@dp.message_handler(commands=['export_bonus'])
+@router.message(Command("export_bonus"))
 async def export_command(message: types.Message):
     """Обработчик команды /export_bonus"""
+
     # Проверяем, является ли пользователь, который вызывает команду, администратором
     if message.from_user.id not in [5837917794, 5958542955]:  # Предоставление доступа к команде  /export_bonus
-        await message.reply('У вас нет доступа к этой команде.')
+        await message.reply('У вас нет доступа к этой команде.', parse_mode='HTML')
         return
 
     data = get_export_bonus_from_database()  # Получаем данные бонусов
@@ -40,7 +43,7 @@ async def export_command(message: types.Message):
     os.remove('users_bonus.xlsx')  # Удаляем файл Excel
 
 
-@dp.message_handler(commands=['export_user'])
+@router.message(Command("export_user"))
 async def export_command(message: types.Message):
     """Обработчик команды /export_user"""
     # Проверяем, является ли пользователь, который вызывает команду, администратором
