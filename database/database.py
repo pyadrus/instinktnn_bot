@@ -7,8 +7,8 @@ def creating_a_database_of_tables():
     users - запись данных пользователей запустивших бота
     users_bonus - запись данных пользователей получивших бонус
     """
-    # Подключение к базе данных SQLite
-    conn = sqlite3.connect('orders.db')
+
+    conn = sqlite3.connect('orders.db')  # Подключение к базе данных SQLite
     cursor = conn.cursor()
     # Создаем таблицу, если она не существует
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, 
@@ -27,8 +27,8 @@ def recording_the_data_of_users_who_launched_the_bot(message, current_date):
         message: Данные Telegram аккаунта 
         current_date: Время запуска бота
     """
-    # Подключение к базе данных SQLite
-    conn = sqlite3.connect('orders.db')
+
+    conn = sqlite3.connect('orders.db')  # Подключение к базе данных SQLite
     cursor = conn.cursor()
     # Записываем данные пользователя в базу данных
     cursor.execute('''INSERT INTO users (user_id, first_name, last_name, username, date) VALUES (?, ?, ?, ?, ?)''', (
@@ -58,7 +58,7 @@ def get_export_user_bonus_from_database():
 
 
 def retrieve_user_bonus(user_key):
-    conn = sqlite3.connect('orders.db')
+    conn = sqlite3.connect('orders.db')  # Подключение к базе данных SQLite
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users_bonus WHERE user_key=?", (user_key,))
     existing_user = cursor.fetchone()
