@@ -21,6 +21,7 @@ class MakingAnOrder(StatesGroup):
     """Создание класса состояний"""
     write_phone = State()
 
+
 @router.callback_query(F.data == "Ilyich_button")
 async def ilyich_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
     try:
@@ -39,7 +40,7 @@ async def ilyich_button_handler(callback_query: types.CallbackQuery, state: FSMC
         logger.error(f'Произошла ошибка: {e}')
 
 
-@dp.callback_query_handler(lambda c: c.data == "ilyich_kub")
+@router.callback_query(F.data == "ilyich_kub")
 async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_dice(callback_query.from_user.id, emoji='🎲')  # Отправляем эмодзи '🎲'
     time.sleep(5)
@@ -62,7 +63,7 @@ async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(user_id=user_id, today=today, plase=plase)
 
 
-@dp.message_handler(state=MakingAnOrder.write_phone)
+@router.message(MakingAnOrder.write_phone)
 async def write_phone(message: types.Message, state: FSMContext):
     """Обработчик ввода номера телефона"""
     data = await state.get_data()

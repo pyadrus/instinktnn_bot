@@ -1,12 +1,11 @@
-from aiogram import types
+from aiogram import types, F
 
 from messages.message_text_faq import moscow_message_text_faq
-from system.dispatcher import dp, bot
+from system.dispatcher import dp, bot, router
 
 """FAQ"""
 
-
-@dp.callback_query_handler(lambda c: c.data == 'moscow_reference')
+@router.callback_query(F.data == "moscow_reference")
 async def moscow_faq_handler(callback_query: types.CallbackQuery):
     """Пояснение для пользователя FAG"""
     # disable_web_page_preview=True - скрыть предпросмотр ссылок в Telegram
