@@ -4,9 +4,10 @@ import sqlite3  # Импортируем модуль для работы с б�
 import time
 from datetime import date
 
+from aiogram import F
 from aiogram import types  # Типы пользователя
-from aiogram.dispatcher import FSMContext  # Состояния пользователя
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext  # Состояния пользователя
+from aiogram.fsm.state import StatesGroup, State
 from loguru import logger
 
 from database.database import recording_the_data_of_users_who_launched_the_bot
@@ -14,7 +15,7 @@ from database.database import retrieve_user_bonus
 from keyboards.bonus_keyboards import dobrolyudova_keyboards
 from messages.bonus_text import random_dob
 from messages.greeting_post import greeting_post_nizhniy_novgorod
-from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
+from system.dispatcher import dp, bot, router  # Подключение к боту и диспетчеру пользователя
 
 
 class MakingAnOrderDobrolyudova(StatesGroup):
@@ -22,11 +23,10 @@ class MakingAnOrderDobrolyudova(StatesGroup):
     write_phone_dobrolyudova = State()
 
 
-@dp.callback_query_handler(lambda c: c.data == "dobrolyudova")
+@router.callback_query(F.data == "dobrolyudova")
 async def dobrolyudova_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
     try:
-        await state.finish()
-        await state.reset_state()
+        await state.clear()
         username = callback_query.from_user.username  # Username пользователя бота Telegram
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
         logger.info(f'Нажали на кнопку "Добролюбова" {callback_query.from_user.id, username, current_date}')
@@ -41,7 +41,7 @@ async def dobrolyudova_button_handler(callback_query: types.CallbackQuery, state
         logger.error(f'Произошла ошибка: {e}')
 
 
-@dp.callback_query_handler(lambda c: c.data == "dobrolyudova_kub")
+@router.callback_query(F.data == "dobrolyudova_kub")
 async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.send_dice(callback_query.from_user.id, emoji='🎲')  # Отправляем эмодзи '🎲'
     time.sleep(5)
@@ -64,7 +64,7 @@ async def share_number(callback_query: types.CallbackQuery, state: FSMContext):
     await state.update_data(user_id=user_id, today=today, plase=plase)
 
 
-@dp.message_handler(state=MakingAnOrderDobrolyudova.write_phone_dobrolyudova)
+@router.message(MakingAnOrderDobrolyudova.write_phone_dobrolyudova)
 async def write_phone(message: types.Message, state: FSMContext):
     """Обработчик ввода номера телефона"""
     data = await state.get_data()

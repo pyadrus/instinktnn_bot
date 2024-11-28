@@ -5,28 +5,26 @@ import time
 from datetime import date
 
 from aiogram import types  # Типы пользователя
-from aiogram.dispatcher import FSMContext  # Состояния пользователя
-from aiogram.dispatcher.filters.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext  # Состояния пользователя
+from aiogram.fsm.state import StatesGroup, State
 from loguru import logger
-
+from aiogram import types, F
 from database.database import recording_the_data_of_users_who_launched_the_bot
 from database.database import retrieve_user_bonus
 from keyboards.bonus_keyboards import ilyich_keyboards
 from messages.bonus_text import random_il
 from messages.greeting_post import greeting_post_nizhniy_novgorod
-from system.dispatcher import dp, bot  # Подключение к боту и диспетчеру пользователя
+from system.dispatcher import dp, bot, router  # Подключение к боту и диспетчеру пользователя
 
 
 class MakingAnOrder(StatesGroup):
     """Создание класса состояний"""
     write_phone = State()
 
-
-@dp.callback_query_handler(lambda c: c.data == "Ilyich_button")
+@router.callback_query(F.data == "Ilyich_button")
 async def ilyich_button_handler(callback_query: types.CallbackQuery, state: FSMContext):
     try:
-        await state.finish()
-        await state.reset_state()
+        await state.clear()
         username = callback_query.from_user.username  # Username пользователя бота Telegram
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Получаем текущую дату и время
         logger.info(f'Нажали на кнопку "Ильича" {callback_query.from_user.id, username, current_date}')
